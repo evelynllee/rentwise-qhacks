@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVIEW A CONTRACT</title>
+    <link rel="stylesheet" href="index.css">
+    <script type="module">
+        // Import Chatbot at the beginning
+        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js";
+
+        let chatbotInstance = null;
+
+        // Initialize Chatbot on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                chatbotInstance = await Chatbot.initFull({
+                    chatflowid: "bf4aaf3b-7077-44a5-916c-1ca49a059b16",
+                    apiHost: "http://localhost:3000",
+                });
+                console.log("Chatbot initialization completed.");
+            } catch (error) {
+                console.error("Error initializing Chatbot:", error);
+            }
+        });
+
+        // Define readTextFile function for regular text files
+        async function readTextFile(file) {
+            const fileReader = new FileReader();
+
+            return new Promise((resolve, reject) => {
+                fileReader.onload = (event) => {
+                    const textContent = event.target.result;
+                    resolve(textContent);
+                };
+
+                fileReader.onerror = (event) => {
+                    reject(event.target.error);
+                };
+
+                fileReader.readAsText(file);
+            });
+        }
+
+        // Define handleFileSelect function
+        async function handleFileSelect() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+
+                if (file) {
+                    // Optional: Display the selected file name or other information
+                    console.log("Selected file:", file.name);
+
+                    // Read the contents of the text file
+                    const fileContent = await readTextFile(file);
+
+                    // Send the file content to the chatbot
+                    if (chatbotInstance) {
+                        await chatbotInstance.sendMessage(fileContent);
+                    } else {
+                        console.error("Chatbot not initialized.");
+                    }
+
+                    // Show the chatbot element
+                    document.getElementById('chatbot').style.display = 'block';
+                }
+            } catch (error) {
+                console.error("Error processing file:", error);
+                // Display a user-friendly error message if needed
+                alert("Error processing file. Please try again.");
+            }
+        }
+
+        // Define handleFileUpload function to handle AJAX request for file upload
+        async function handleFileUpload() {
+            try {
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('../php/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const responseData = await response.text();
+                    console.log(responseData);
+                } else {
+                    throw new Error('Failed to upload file.');
+                }
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                // Display a user-friendly error message if needed
+                alert("Error uploading file. Please try again.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <section class="header">
+        <nav>
+            <a href="index.html"><img src="image/rentwiselogo"></a>
+            <div class="nav-links">
+                <ul>
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="about.html">ABOUT</a></li>
+                    <li><a href="review.html">REVIEW A CONTRACT</a></li>
+                    <li><a href="contact.html">CONTACT</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="text-box">
+            <h1>Upload your files</h1>
+            <label for="fileInput" class="custom-file-upload">
+                <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect()"/>
+                Choose a file
+            </label>
+        </div>
+    </section>
+
+    <flowise-fullchatbot id="chatbot" style="display: none;"></flowise-fullchatbot>
+
+    <div id="loadingIndicator" style="display: none;">
+        Loading... Please wait.
+    </div>
+</body>
+</html>
