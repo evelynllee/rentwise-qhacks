@@ -16,7 +16,7 @@ I was responsible for designing the website and implementing the front-end. Desp
 
 * Designing the layout and UI components
 * Implementing responsive features
-* Integrating HTML, CSS, and JavaScript for the front-end
+* Integrating HTML, CSS, and JavaScript for the front-end, as well as PHP for file upload 
 
 The current front-end reflects my contributions and design decisions.
 
